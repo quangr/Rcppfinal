@@ -4,7 +4,6 @@ library(purrr)
 # constraint matrix 1, input:X(n*r), return a constraint matrix A((p(p-1)r/2)*(np))
 PSOD.Finite.qnorm.1.constraint1 <- function(X, m) {
   combo <- map(1:(m - 1), ~ cross2(c(.x), (.x + 1):m)) %>% flatten()
-  print(combo)
   commatrix <- map(combo, function(v) {
     t <- rep(0, m)
     t[v[[1]]] <- 1
@@ -21,7 +20,6 @@ PSOD.Finite.qnorm.1.constraint1 <- function(X, m) {
 # constraint matrix 1, input:X(n*r), return a constraint matrix A((2^r)*(np))
 PSOD.Finite.qnorm.inf.constraint1 <- function(X, m) {
   combo <- map(1:(m - 1), ~ cross2(c(.x), (.x + 1):m)) %>% flatten()
-  print(combo)
   commatrix <- map(combo, function(v) {
     t <- rep(0, m)
     t[v[[1]]] <- 1
@@ -36,8 +34,8 @@ PSOD.Finite.qnorm.inf.constraint1 <- function(X, m) {
   }else{
     crossones=reduce(rep(1,ncol(X)-1),~map(c(-1,1),function(x){cross2(c(x),.x)%>%map(flatten)})%>%flatten(),.init =c(-1,1))
   }
-  matrixs=map(as.data.frame(X), sintraitmatrix)
-  map(crossones,~.x%>%reduce2(matrixs,function(x,y,z){x+y*z},.init = 0))%>%reduce(rbind)
+  matrices=map(as.data.frame(X), sintraitmatrix)
+  map(crossones,~.x%>%reduce2(matrices,function(x,y,z){x+y*z},.init = 0))%>%reduce(rbind)
 }
 
 PSOD.common.constraint1 <- function(n, m) {
@@ -49,7 +47,7 @@ PSOD.common.constraint2 <- function(n, m) {
 }
 
 # Finite dimensional q-space
-PSOD.Finite.qnorm <- function(data, q = 1, formula, m = 2) {
+PSOD.Finite.qnorm <- function(data, q = 1, formula=~., m = 2) {
   design <- model.matrix(formula, data = data)
   n=nrow(design)
   
@@ -62,6 +60,7 @@ PSOD.Finite.qnorm <- function(data, q = 1, formula, m = 2) {
   
   if (q == 1) {
     CL1=PSOD.Finite.qnorm.1.constraint1(design,m)
+    # CL1%*%c(rep(c(1,0),10),rep(c(0,1),10))
     CL1=rbind(CL1,-CL1)
     CL1=cbind(rep(1,nrow(CL1)),CL1)
     CL1=L_constraint(CL1,dir=rep(">=",nrow(CL1)),rhs=rep(0,nrow(CL1)))
@@ -72,12 +71,11 @@ PSOD.Finite.qnorm <- function(data, q = 1, formula, m = 2) {
                types =types, 
                maximum = FALSE)
     (sol <- ROI_solve(milp))
-    solution(sol)
+    return(solution(sol)[-1])
   }
 
   if (q == Inf) {
-    CL1=PSOD.common.constraint1(design,m)
-    CL1=rbind(CL1,-CL1)
+    CL1=PSOD.Finite.qnorm.inf.constraint1(design,m)
     CL1=cbind(rep(1,nrow(CL1)),CL1)
     CL1=L_constraint(CL1,dir=rep(">=",nrow(CL1)),rhs=rep(0,nrow(CL1)))
     
@@ -87,10 +85,9 @@ PSOD.Finite.qnorm <- function(data, q = 1, formula, m = 2) {
                types =types, 
                maximum = FALSE)
     (sol <- ROI_solve(milp))
-    solution(sol)
+    return(solution(sol)[-1])
   }
-  
-  
+
 }
 
 # Lipschitz functions
