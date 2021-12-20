@@ -25,7 +25,7 @@ RunSimulation=function(){
 
 
 PlotResult=function(m){
-  paridata=pairdata(50,m)
-  ar1=matrix(PSOD.Lipschitz(paridata,m=m),ncol = m,byrow = T)%*%1:m%>%as.vector()
-  ggplot(paridata,aes(x=x,y=y,shape=as.factor(ar1)))+geom_point()
+  data=pairdata(30,m)
+  ar1=matrix(PSOD.Lipschitz(data,m=m),ncol = m,byrow = T)%*%1:m%>%as.vector()
+  ggplot(data,aes(x=x,y=y,shape=as.factor(ar1)))+geom_point()
 }

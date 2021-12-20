@@ -164,7 +164,7 @@ PSOD.Lipschitz <- function(data,m = 2,distance="euclidean") {
                constraints = c(CL2,CL1,CCL1,CCL2),
                types =types, 
                maximum = FALSE)
-    (sol <- ROI_solve(milp))
+    (sol <- ROI_solve(milp,solver = "gurobi"))
     return(solution(sol)[2:(2+m*n-1)])
   }
 }
