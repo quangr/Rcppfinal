@@ -73,7 +73,7 @@ PSOD.Finite.qnorm <- function(data, q = 1, formula=~., m = 2) {
                types =types, 
                maximum = FALSE)
     (sol <- ROI_solve(milp))
-    return(solution(sol)[-1])
+    return(solution(sol)[-1]%>%matrix(ncol = m,byrow = T)%*%1:m%>%as.vector())
   }
 
   if (q == Inf) {
@@ -87,7 +87,7 @@ PSOD.Finite.qnorm <- function(data, q = 1, formula=~., m = 2) {
                types =types, 
                maximum = FALSE)
     (sol <- ROI_solve(milp))
-    return(solution(sol)[-1])
+    return(solution(sol)[-1]%>%matrix(ncol = m,byrow = T)%*%1:m%>%as.vector())
   }
 
 }
@@ -165,7 +165,7 @@ PSOD.Lipschitz <- function(data,m = 2,distance="euclidean") {
                types =types, 
                maximum = FALSE)
     (sol <- ROI_solve(milp,solver = "gurobi"))
-    return(solution(sol)[2:(2+m*n-1)])
+    return(solution(sol)[2:(2+m*n-1)]%>%matrix(ncol = m,byrow = T)%*%1:m%>%as.vector())
   }
 }
 
